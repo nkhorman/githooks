@@ -6,7 +6,7 @@ $home = $_SERVER['HOME'];
 
 // morph "/home/user/dir.git" --> "dir.git"
 // NOTE! if you change this, change the keys in slackrepos.php as well
-$repo = explode('/', explode($home, $pwd)[1])[1];
+$repo = ltrim(explode($home, $pwd)[1], "/");
 
 $cmd = $home.'/hooks/gitslack.php --dir '.$pwd.' --repo '.$repo.' --send';
 echo shell_exec($cmd);
