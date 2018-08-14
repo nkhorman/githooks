@@ -32,6 +32,12 @@
  *
  */
 
+/*
+ * some great info;
+ *	https://help.github.com/enterprise/2.14/admin/guides/developer-workflow/creating-a-pre-receive-hook-script/
+ *
+ */
+
 require 'slack.php';
 require 'git.php';
 
@@ -84,24 +90,39 @@ if(isset($args) && is_array($args) && count($args))
 		switch($v)
 		{
 			case '--send':
+				/*
 				//$commit['commitUrl'] = $commit['url'].$commit['project'].'/commit/'.$commit['hashLong'];
 				//$commit['commitTitle'] = 'Commit <'.$commit['commitUrl'].'|'.$commit['hashShort'].'>';
-				if(count($commit) == 0)
-					$commit = array_replace($commit, $git->last());
-				$commit['commitTitle'] = 'Commit '.$commit['hashShort'];
-				if(isset($commit['repo']) && $commit['repo'] != "")
-					$commit['commitTitle'] = $commit['commitTitle'].' --> '.$commit['repo'];
-				commitSend($commit, $slack);
+				*/
+				while($f = fgets(STDIN))
+				{
+					$ar = explode(" ", $f);
+					// [0] = old revision
+					// [1] = new revision
+					// [2] = ref name
+					//echo "revold: ".$ar[0]." revnew: ".$ar[1]." ref: ".$ar[2];
+					$revs = $git->revs($ar[0], $ar[1]);
+					$commitstart = $commit;
+					foreach($revs as $rev)
+					{
+						$commit = $commitstart;
+						$commit = array_replace($commit, $git->rev($rev));
+						$commit['commitTitle'] = 'Commit '.$commit['hashShort'];
+						if(isset($commit['repo']) && $commit['repo'] != "")
+							$commit['commitTitle'] = $commit['commitTitle'].' --> '.$commit['repo'];
+						commitSend($commit, $slack);
+					}
+				}
 				break;
 			case '--show':
 				if(count($commit) == 0)
-					$commit = array_replace($commit, $git->last());
+					$commit = array_replace($commit, $git->rev());
 				print_r($commit);
 				break;
 			case '--channel': $slackChannel = $args[++$i];; break;
 			case '--dir':
 				$git->dir($args[++$i]);
-				$commit = array_replace($commit, $git->last());
+				$commit = array_replace($commit, $git->rev());
 				break;
 			case '--repo':
 				$commit['repo'] = $args[++$i];
