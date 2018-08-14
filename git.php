@@ -59,18 +59,23 @@ class Git
 			$this->mRepo = explode(':', trim($v))[2];
 	}
 
-	public function last()
+	public function revs($from, $to)
+	{
+		return explode("\n", trim($this->cmd('cd '.$this->mDir.'; git rev-list --reverse '.$from.'..'.$to)));
+	}
+
+	public function rev($rev = "")
 	{
 		$fieldKeys = array('hashShort', 'hashLong', 'author', 'time');
-		$fieldVals = explode('|', $this->cmd('cd '.$this->mDir.'; git log --pretty="format:%h|%H|%cn|%ct" -1'));
+		$fieldVals = explode('|', $this->cmd('cd '.$this->mDir.'; git log '.$rev.' --pretty="format:%h|%H|%cn|%ct" -1'));
 
 		$info = array_combine($fieldKeys, $fieldVals);
-		$info['log'] = $this->cmd('cd '.$this->mDir.'; git log --pretty="format:%s" -1');
+		$info['log'] = $this->cmd('cd '.$this->mDir.'; git log '.$rev.' --pretty="format:%s" -1');
 		$info['dir'] = $this->mDir;
 		if(isset($this->mRepo))
 			$info['repo'] = $this->mRepo;
 
-		$x = explode("\n", trim($this->cmd('cd '.$this->mDir.'; git log --stat --oneline -1')));
+		$x = explode("\n", trim($this->cmd('cd '.$this->mDir.'; git log '.$rev.' --stat --oneline -1')));
 		//$info['log'] = $x[0];
 		array_shift($x);
 		$info['history'] = implode("\n",$x);
