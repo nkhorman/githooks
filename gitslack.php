@@ -109,7 +109,7 @@ if(isset($args) && is_array($args) && count($args))
 						$commit = array_replace($commit, $git->rev($rev));
 						$commit['commitTitle'] = 'Commit '.$commit['hashShort'];
 						if(isset($commit['repo']) && $commit['repo'] != "")
-							$commit['commitTitle'] = $commit['commitTitle'].' --> '.$commit['repo'];
+							$commit['commitTitle'] = $commit['commitTitle'].' --> '.$commit['repo'].' on '.$ar[2];
 						commitSend($commit, $slack);
 					}
 				}
