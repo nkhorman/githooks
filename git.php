@@ -38,6 +38,10 @@ class Git
 		if(!isset($dir) || $dir == "")
 			$dir='.';
 		$this->dir($dir);
+
+		$this->mOptions = [];
+		for($i=0,$q=$_SERVER['GIT_PUSH_OPTION_COUNT']; $i < $q; $i++)
+			$this->mOptions[$i] = $_SERVER['GIT_PUSH_OPTION_'.$i];
 	}
 
 	public function cmd($cmd)
@@ -89,7 +93,20 @@ class Git
 		return $info;
 	}
 
+	public function files($from, $to)
+	{
+		$txt = preg_replace('/\s{1,}/', ' ', trim($this->cmd('cd '.$this->mDir.'; git diff-tree --name-status '.$from.'..'.$to)));
+		$ar = explode("\n", $txt);
+		foreach($ar as $k=>$v)
+			$ar[$k] = preg_split('/\s/', $v, 2);
+
+		return $ar;
+	}
+
+	public function options() { return $this->mOptions; }
+
 	private $mDir;
+	private $mOptions;
 }
 
 ?>
