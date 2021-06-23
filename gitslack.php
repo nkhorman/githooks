@@ -112,6 +112,7 @@ if(isset($args) && is_array($args) && count($args))
 							$commit['commitTitle'] = $commit['commitTitle'].' --> '.$commit['repo'].' on '.$ar[2];
 						commitSend($commit, $slack);
 					}
+					sleep(1);
 				}
 				break;
 			case '--show':
